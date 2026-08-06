@@ -19,18 +19,93 @@ final class Settings {
 
 	public static function defaults() {
 		return array(
-			'enabled'      => 'yes',
-			'gateway_id'   => '',
-			'badge'        => __( 'Recommended', 'payment-method-highlighter' ),
-			'message'      => __( 'A fast, secure choice for your order.', 'payment-method-highlighter' ),
-			'accent_color' => '#6d28d9',
-			'style'        => 'soft',
-			'preselect'    => 'no',
+			'schema_version'     => 2,
+			'enabled'           => 'yes',
+			'methods'           => array(),
 		);
 	}
 
+	public static function method_defaults( $gateway_id ) {
+		return array(
+			'enabled'      => 'yes',
+			'accent_color' => self::default_color( $gateway_id ),
+		);
+	}
+
+	/**
+	 * Each gateway starts with a useful colour so merchants can enable several
+	 * methods without having to configure a colour palette first.
+	 */
+	public static function default_color( $gateway_id ) {
+		$brand_colours = array(
+			'paypal'               => '#0070ba',
+			'ppec_paypal'          => '#0070ba',
+			'stripe'               => '#635bff',
+			'woocommerce_payments' => '#635bff',
+			'cod'                  => '#15803d',
+			'bacs'                 => '#0f766e',
+			'cheque'               => '#a16207',
+			'klarna'               => '#c2255c',
+		);
+
+		if ( isset( $brand_colours[ $gateway_id ] ) ) {
+			return $brand_colours[ $gateway_id ];
+		}
+
+		$palette = array( '#2563eb', '#7c3aed', '#0891b2', '#059669', '#d97706', '#dc2626', '#db2777', '#4f46e5' );
+		$index   = (int) sprintf( '%u', crc32( $gateway_id ) ) % count( $palette );
+
+		return $palette[ $index ];
+	}
+
 	public function get() {
-		return wp_parse_args( (array) get_option( self::OPTION_KEY, array() ), self::defaults() );
+		$stored = (array) get_option( self::OPTION_KEY, array() );
+
+		if ( ! isset( $stored['methods'] ) && isset( $stored['gateway_id'] ) ) {
+			return $this->migrate_legacy_options( $stored );
+		}
+
+		$is_previous_version = ! isset( $stored['schema_version'] );
+		$options            = wp_parse_args( $stored, self::defaults() );
+		$options['methods'] = isset( $options['methods'] ) && is_array( $options['methods'] ) ? $options['methods'] : array();
+
+		// Version 1.0 saved every method as disabled by default. Promote those
+		// records once so existing stores receive the new colour-first behaviour.
+		if ( $is_previous_version ) {
+			foreach ( $this->payment_gateways() as $gateway_id => $gateway ) {
+				if ( ! isset( $options['methods'][ $gateway_id ] ) || ! is_array( $options['methods'][ $gateway_id ] ) ) {
+					$options['methods'][ $gateway_id ] = array();
+				}
+				$options['methods'][ $gateway_id ]['enabled'] = 'yes';
+			}
+		}
+
+		return $options;
+	}
+
+	/**
+	 * Read the previous one-method setup without requiring merchants to re-enter it.
+	 */
+	private function migrate_legacy_options( $legacy ) {
+		$options = self::defaults();
+		$gateway = isset( $legacy['gateway_id'] ) ? sanitize_key( $legacy['gateway_id'] ) : '';
+
+		$options['enabled']           = isset( $legacy['enabled'] ) ? $legacy['enabled'] : 'yes';
+		if ( $gateway ) {
+			$options['methods'][ $gateway ] = array(
+				'enabled'      => 'yes',
+				'accent_color' => isset( $legacy['accent_color'] ) ? $legacy['accent_color'] : self::default_color( $gateway ),
+			);
+		}
+
+		return $options;
+	}
+
+	public function get_method( $gateway_id, $options = null ) {
+		$options = is_array( $options ) ? $options : $this->get();
+		$stored  = isset( $options['methods'][ $gateway_id ] ) && is_array( $options['methods'][ $gateway_id ] ) ? $options['methods'][ $gateway_id ] : array();
+
+		return wp_parse_args( $stored, self::method_defaults( $gateway_id ) );
 	}
 
 	public function register_page() {
@@ -57,20 +132,26 @@ final class Settings {
 	}
 
 	public function sanitize( $input ) {
-		$defaults = self::defaults();
-		$input    = is_array( $input ) ? $input : array();
-		$gateways = $this->payment_gateways();
-		$gateway  = isset( $input['gateway_id'] ) ? sanitize_key( wp_unslash( $input['gateway_id'] ) ) : '';
-		$color    = isset( $input['accent_color'] ) ? sanitize_hex_color( wp_unslash( $input['accent_color'] ) ) : '';
+		$input      = is_array( $input ) ? $input : array();
+		$gateways   = $this->payment_gateways();
+		$raw_methods = isset( $input['methods'] ) && is_array( $input['methods'] ) ? $input['methods'] : array();
+		$methods    = array();
+
+		foreach ( $gateways as $gateway_id => $gateway ) {
+			$raw    = isset( $raw_methods[ $gateway_id ] ) && is_array( $raw_methods[ $gateway_id ] ) ? $raw_methods[ $gateway_id ] : array();
+			$color  = isset( $raw['accent_color'] ) ? sanitize_hex_color( wp_unslash( $raw['accent_color'] ) ) : '';
+			$method = self::method_defaults( $gateway_id );
+
+			$methods[ $gateway_id ] = array(
+				'enabled'      => isset( $raw['enabled'] ) ? 'yes' : 'no',
+				'accent_color' => $color ? $color : $method['accent_color'],
+			);
+		}
 
 		return array(
-			'enabled'      => isset( $input['enabled'] ) ? 'yes' : 'no',
-			'gateway_id'   => array_key_exists( $gateway, $gateways ) ? $gateway : '',
-			'badge'        => isset( $input['badge'] ) ? sanitize_text_field( wp_unslash( $input['badge'] ) ) : $defaults['badge'],
-			'message'      => isset( $input['message'] ) ? sanitize_textarea_field( wp_unslash( $input['message'] ) ) : $defaults['message'],
-			'accent_color' => $color ? $color : $defaults['accent_color'],
-			'style'        => isset( $input['style'] ) && in_array( $input['style'], array( 'soft', 'solid' ), true ) ? $input['style'] : $defaults['style'],
-			'preselect'    => isset( $input['preselect'] ) ? 'yes' : 'no',
+			'schema_version'     => 2,
+			'enabled'           => isset( $input['enabled'] ) ? 'yes' : 'no',
+			'methods'           => $methods,
 		);
 	}
 
@@ -82,82 +163,52 @@ final class Settings {
 		$options  = $this->get();
 		$gateways = $this->payment_gateways();
 		?>
-		<div class="wrap pmh-admin">
-			<section class="pmh-admin__hero">
-				<div class="pmh-admin__eyebrow"><span aria-hidden="true">✦</span> <?php esc_html_e( 'Checkout optimization', 'payment-method-highlighter' ); ?></div>
-				<h1><?php esc_html_e( 'Payment Method Highlighter', 'payment-method-highlighter' ); ?></h1>
-				<p><?php esc_html_e( 'Guide customers towards the payment method you want to promote — without changing how payments are processed.', 'payment-method-highlighter' ); ?></p>
-			</section>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'Payment Method Highlighter', 'payment-method-highlighter' ); ?></h1>
+			<p><?php esc_html_e( 'Show a colour-coded payment method badge when an administrator opens a WooCommerce order. Each method can have its own colour.', 'payment-method-highlighter' ); ?></p>
 
 			<?php if ( empty( $gateways ) ) : ?>
-				<div class="notice notice-warning inline"><p><?php esc_html_e( 'No payment methods are currently configured. Enable at least one gateway in WooCommerce → Settings → Payments, then return here.', 'payment-method-highlighter' ); ?></p></div>
+				<div class="notice notice-warning inline"><p><?php esc_html_e( 'No payment methods are currently registered. Configure a payment gateway in WooCommerce → Settings → Payments, then return here.', 'payment-method-highlighter' ); ?></p></div>
 			<?php endif; ?>
 
-			<form action="options.php" method="post" class="pmh-admin__form">
+			<form action="options.php" method="post">
 				<?php settings_fields( 'pmh_settings' ); ?>
-				<div class="pmh-admin__layout">
-					<div class="pmh-admin__card pmh-admin__card--main">
-						<div class="pmh-admin__card-heading">
-							<div>
-								<h2><?php esc_html_e( 'Featured method', 'payment-method-highlighter' ); ?></h2>
-								<p><?php esc_html_e( 'Choose a live WooCommerce payment gateway to highlight at checkout.', 'payment-method-highlighter' ); ?></p>
-							</div>
-							<label class="pmh-switch">
-								<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enabled]" value="yes" <?php checked( $options['enabled'], 'yes' ); ?> />
-								<span class="pmh-switch__track" aria-hidden="true"></span>
-								<span class="screen-reader-text"><?php esc_html_e( 'Enable payment method highlighter', 'payment-method-highlighter' ); ?></span>
-							</label>
-						</div>
+				<table class="form-table" role="presentation">
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Enable payment colours', 'payment-method-highlighter' ); ?></th>
+						<td>
+							<label for="pmh-enabled"><input id="pmh-enabled" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enabled]" type="checkbox" value="yes" <?php checked( $options['enabled'], 'yes' ); ?> /> <?php esc_html_e( 'Show colour-coded payment method badges on individual order screens.', 'payment-method-highlighter' ); ?></label>
+						</td>
+					</tr>
+				</table>
 
-						<div class="pmh-field">
-							<label for="pmh-gateway-id"><?php esc_html_e( 'Payment method', 'payment-method-highlighter' ); ?></label>
-							<select id="pmh-gateway-id" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[gateway_id]" <?php disabled( empty( $gateways ) ); ?>>
-								<option value=""><?php esc_html_e( 'Select a payment method…', 'payment-method-highlighter' ); ?></option>
-								<?php foreach ( $gateways as $id => $title ) : ?>
-									<option value="<?php echo esc_attr( $id ); ?>" <?php selected( $options['gateway_id'], $id ); ?>><?php echo esc_html( $title ); ?></option>
-								<?php endforeach; ?>
-							</select>
-							<p class="description"><?php esc_html_e( 'Only enabled gateways are shown. Availability rules set by the gateway still apply.', 'payment-method-highlighter' ); ?></p>
-						</div>
+				<h2><?php esc_html_e( 'Payment method colours', 'payment-method-highlighter' ); ?></h2>
+				<p><?php esc_html_e( 'Every payment method starts with its own built-in colour. Uncheck Use colour for any method that should not receive a badge in the order admin screen.', 'payment-method-highlighter' ); ?></p>
+				<table class="widefat striped">
+					<thead>
+						<tr>
+							<th scope="col"><?php esc_html_e( 'Payment method', 'payment-method-highlighter' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Use colour', 'payment-method-highlighter' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Colour', 'payment-method-highlighter' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $gateways as $gateway_id => $gateway ) : ?>
+							<?php $method = $this->get_method( $gateway_id, $options ); ?>
+							<tr>
+								<td>
+									<strong><?php echo esc_html( $gateway['title'] ); ?></strong><br />
+									<code><?php echo esc_html( $gateway_id ); ?></code>
+									<?php if ( ! $gateway['active'] ) : ?><p class="description"><?php esc_html_e( 'Inactive in WooCommerce', 'payment-method-highlighter' ); ?></p><?php endif; ?>
+								</td>
+								<td><label class="screen-reader-text" for="pmh-method-<?php echo esc_attr( $gateway_id ); ?>-enabled"><?php esc_html_e( 'Use colour for this method', 'payment-method-highlighter' ); ?></label><input id="pmh-method-<?php echo esc_attr( $gateway_id ); ?>-enabled" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[methods][<?php echo esc_attr( $gateway_id ); ?>][enabled]" type="checkbox" value="yes" <?php checked( $method['enabled'], 'yes' ); ?> /></td>
+								<td><label class="screen-reader-text" for="pmh-method-<?php echo esc_attr( $gateway_id ); ?>-colour"><?php esc_html_e( 'Accent colour', 'payment-method-highlighter' ); ?></label><input id="pmh-method-<?php echo esc_attr( $gateway_id ); ?>-colour" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[methods][<?php echo esc_attr( $gateway_id ); ?>][accent_color]" type="color" value="<?php echo esc_attr( $method['accent_color'] ); ?>" /></td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
 
-						<div class="pmh-grid">
-							<div class="pmh-field">
-								<label for="pmh-badge"><?php esc_html_e( 'Badge label', 'payment-method-highlighter' ); ?></label>
-								<input id="pmh-badge" type="text" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[badge]" value="<?php echo esc_attr( $options['badge'] ); ?>" maxlength="50" placeholder="<?php esc_attr_e( 'Recommended', 'payment-method-highlighter' ); ?>" />
-							</div>
-							<div class="pmh-field">
-								<label for="pmh-color"><?php esc_html_e( 'Accent colour', 'payment-method-highlighter' ); ?></label>
-								<div class="pmh-color-control"><input id="pmh-color" type="color" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[accent_color]" value="<?php echo esc_attr( $options['accent_color'] ); ?>" /><code><?php echo esc_html( $options['accent_color'] ); ?></code></div>
-							</div>
-						</div>
-
-						<div class="pmh-field">
-							<label for="pmh-message"><?php esc_html_e( 'Supporting message', 'payment-method-highlighter' ); ?></label>
-							<textarea id="pmh-message" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[message]" rows="3" maxlength="180" placeholder="<?php esc_attr_e( 'A fast, secure choice for your order.', 'payment-method-highlighter' ); ?>"><?php echo esc_textarea( $options['message'] ); ?></textarea>
-							<p class="description"><?php esc_html_e( 'Keep it short and helpful. It appears below the payment method title.', 'payment-method-highlighter' ); ?></p>
-						</div>
-					</div>
-
-					<aside class="pmh-admin__card pmh-admin__card--side">
-						<h2><?php esc_html_e( 'Display options', 'payment-method-highlighter' ); ?></h2>
-						<div class="pmh-field">
-							<span class="pmh-label"><?php esc_html_e( 'Highlight style', 'payment-method-highlighter' ); ?></span>
-							<div class="pmh-choice-group">
-								<label><input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[style]" value="soft" <?php checked( $options['style'], 'soft' ); ?> /> <span><strong><?php esc_html_e( 'Soft', 'payment-method-highlighter' ); ?></strong><small><?php esc_html_e( 'Light accent surface', 'payment-method-highlighter' ); ?></small></span></label>
-								<label><input type="radio" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[style]" value="solid" <?php checked( $options['style'], 'solid' ); ?> /> <span><strong><?php esc_html_e( 'Solid', 'payment-method-highlighter' ); ?></strong><small><?php esc_html_e( 'Stronger accent border', 'payment-method-highlighter' ); ?></small></span></label>
-							</div>
-						</div>
-						<label class="pmh-check-row">
-							<input type="checkbox" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[preselect]" value="yes" <?php checked( $options['preselect'], 'yes' ); ?> />
-							<span><strong><?php esc_html_e( 'Preselect this method', 'payment-method-highlighter' ); ?></strong><small><?php esc_html_e( 'Use it as the default when it is available for the cart and customer.', 'payment-method-highlighter' ); ?></small></span>
-						</label>
-					</aside>
-				</div>
-
-				<div class="pmh-admin__footer">
-					<p><span aria-hidden="true">✓</span> <?php esc_html_e( 'Works with the classic checkout and Checkout Blocks.', 'payment-method-highlighter' ); ?></p>
-					<?php submit_button( __( 'Save changes', 'payment-method-highlighter' ), 'primary', 'submit', false ); ?>
-				</div>
+				<?php submit_button( __( 'Save changes', 'payment-method-highlighter' ) ); ?>
 			</form>
 		</div>
 		<?php
@@ -170,9 +221,10 @@ final class Settings {
 
 		$gateways = array();
 		foreach ( WC()->payment_gateways()->payment_gateways() as $gateway_id => $gateway ) {
-			if ( 'yes' === $gateway->enabled ) {
-				$gateways[ $gateway_id ] = wp_strip_all_tags( $gateway->get_title() );
-			}
+			$gateways[ $gateway_id ] = array(
+				'title'  => wp_strip_all_tags( $gateway->get_title() ),
+				'active' => 'yes' === $gateway->enabled,
+			);
 		}
 
 		return $gateways;

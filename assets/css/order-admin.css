@@ -1,0 +1,25 @@
+.pmh-order-payment-method {
+	margin: 12px 0 0;
+	border-left: 4px solid var(--pmh-payment-colour);
+	padding: 8px 10px;
+	background: #f6f7f7;
+}
+
+.pmh-order-payment-method__label {
+	display: block;
+	margin-bottom: 5px;
+	color: #50575e;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.pmh-order-payment-method__badge {
+	display: inline-block;
+	border-radius: 3px;
+	padding: 4px 8px;
+	color: #fff;
+	background: var(--pmh-payment-colour);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+}

@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Payment Method Highlighter for WooCommerce
- * Description: Feature a preferred WooCommerce payment method with a configurable badge, message and polished checkout styling.
+ * Description: Show a colour-coded payment method badge when an administrator opens a WooCommerce order.
  * Version: 1.0.0
  * Requires at least: 6.5
  * Requires PHP: 7.4
@@ -27,12 +27,12 @@ define( 'PMH_URL', plugin_dir_url( __FILE__ ) );
 require_once PMH_PATH . 'includes/class-pmh-plugin.php';
 require_once PMH_PATH . 'includes/class-pmh-settings.php';
 require_once PMH_PATH . 'includes/class-pmh-assets.php';
+require_once PMH_PATH . 'includes/class-pmh-order-admin.php';
 
 add_action(
 	'before_woocommerce_init',
 	static function() {
 		if ( class_exists( '\\Automattic\\WooCommerce\\Utilities\\FeaturesUtil' ) ) {
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'cart_checkout_blocks', PMH_FILE, true );
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', PMH_FILE, true );
 		}
 	}

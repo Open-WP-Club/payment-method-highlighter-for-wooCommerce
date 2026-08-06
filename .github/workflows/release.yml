@@ -32,15 +32,9 @@ jobs:
           php-version: '7.4'
           coverage: none
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       - name: Validate release source
         run: |
           find . -type f -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l
-          node --check assets/js/frontend.js
           plugin_version="$(sed -nE 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*([^[:space:]]+).*/\1/p' "$PLUGIN_FILE" | head -n1)"
           release_version="${{ github.event.release.tag_name }}"
           release_version="${release_version#v}"
@@ -62,6 +56,7 @@ jobs:
             --exclude='Thumbs.db' \
             --exclude='.env' \
             --exclude='.env.*' \
+            --exclude='*.zip' \
             --exclude='*.log'
           (
             cd build

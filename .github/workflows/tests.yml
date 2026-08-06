@@ -43,19 +43,3 @@ jobs:
           grep -q 'Plugin Name: Payment Method Highlighter for WooCommerce' payment-method-highlighter-for-woocommerce.php
           grep -q 'Version:' payment-method-highlighter-for-woocommerce.php
           grep -q 'WC requires at least:' payment-method-highlighter-for-woocommerce.php
-
-  javascript:
-    name: Validate JavaScript
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Check checkout script syntax
-        run: node --check assets/js/frontend.js
