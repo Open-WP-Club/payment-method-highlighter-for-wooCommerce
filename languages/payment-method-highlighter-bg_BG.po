@@ -1,0 +1,132 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Payment Method Highlighter for WooCommerce 1.2.1\n"
+"Report-Msgid-Bugs-To: https://openwpclub.com\n"
+"POT-Creation-Date: 2026-08-06 15:08+0300\n"
+"PO-Revision-Date: 2026-08-06 15:12+0300\n"
+"Last-Translator: OpenWPClub.com\n"
+"Language-Team: Bulgarian\n"
+"Language: bg\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: includes/class-pmh-order-admin.php:67 includes/class-pmh-order-admin.php:115
+#: includes/class-pmh-settings.php:193
+msgid "Payment method"
+msgstr "Метод на плащане"
+
+#: includes/class-pmh-order-admin.php:94
+msgid "Payment method:"
+msgstr "Метод на плащане:"
+
+#: includes/class-pmh-order-admin.php:184
+msgid "No payment method"
+msgstr "Няма метод на плащане"
+
+#: includes/class-pmh-plugin.php:51
+msgid "Payment Method Highlighter requires WooCommerce to be active."
+msgstr "Payment Method Highlighter изисква WooCommerce да е активиран."
+
+#: includes/class-pmh-plugin.php:57
+msgid "Settings"
+msgstr "Настройки"
+
+#: includes/class-pmh-settings-page.php:18
+msgid "Payment highlighter"
+msgstr "Открояване на методите за плащане"
+
+#: includes/class-pmh-settings.php:148
+msgid "Payment Method Highlighter"
+msgstr "Открояване на методите за плащане"
+
+#: includes/class-pmh-settings.php:149
+msgid ""
+"Show a colour-coded payment method badge when an administrator opens a "
+"WooCommerce order. Each method can have its own colour."
+msgstr ""
+"Показва цветен етикет за метода на плащане, когато администратор отвори "
+"WooCommerce поръчка. Всеки метод може да има собствен цвят."
+
+#: includes/class-pmh-settings.php:152
+msgid ""
+"No payment methods are currently registered. Configure a payment gateway in "
+"WooCommerce → Settings → Payments, then return here."
+msgstr ""
+"В момента няма регистрирани методи за плащане. Настройте платежен метод в "
+"WooCommerce → Настройки → Плащания и след това се върнете тук."
+
+#: includes/class-pmh-settings.php:157
+msgid "Enable payment colours"
+msgstr "Включване на цветове за плащанията"
+
+#: includes/class-pmh-settings.php:159
+msgid "Enable all payment-method badges."
+msgstr "Включване на всички етикети за методите на плащане."
+
+#: includes/class-pmh-settings.php:163
+msgid "Order list badge"
+msgstr "Етикет в списъка с поръчки"
+
+#: includes/class-pmh-settings.php:165
+msgid "Show a colour-coded payment-method column in WooCommerce → Orders."
+msgstr ""
+"Показване на цветна колона за метода на плащане в WooCommerce → Поръчки."
+
+#: includes/class-pmh-settings.php:169
+msgid "Order header badge"
+msgstr "Етикет в заглавната част на поръчката"
+
+#: includes/class-pmh-settings.php:171
+msgid "Show a compact badge next to the order number when viewing an order."
+msgstr "Показване на компактен етикет до номера на поръчката при преглед."
+
+#: includes/class-pmh-settings.php:175
+msgid "Order details badge"
+msgstr "Етикет в детайлите на поръчката"
+
+#: includes/class-pmh-settings.php:177
+msgid "Show the detailed payment-method block in the order screen."
+msgstr "Показване на подробния блок за метода на плащане в екрана на поръчката."
+
+#: includes/class-pmh-settings.php:181
+msgid "Orders without a payment method"
+msgstr "Поръчки без метод на плащане"
+
+#: includes/class-pmh-settings.php:183
+msgid "Show a neutral “No payment method” badge instead of hiding it."
+msgstr "Показване на неутрален етикет „Няма метод на плащане“ вместо скриване."
+
+#: includes/class-pmh-settings.php:188
+msgid "Payment method colours"
+msgstr "Цветове на методите за плащане"
+
+#: includes/class-pmh-settings.php:189
+msgid ""
+"Every payment method starts with its own built-in colour. Uncheck Use colour "
+"for any method that should not receive a badge in the order admin screen."
+msgstr ""
+"Всеки метод на плащане започва със собствен вграден цвят. Премахнете "
+"отметката „Използване на цвят“ за всеки метод, който не трябва да има етикет "
+"в административния екран на поръчката."
+
+#: includes/class-pmh-settings.php:194
+msgid "Use colour"
+msgstr "Използване на цвят"
+
+#: includes/class-pmh-settings.php:195
+msgid "Colour"
+msgstr "Цвят"
+
+#: includes/class-pmh-settings.php:205
+msgid "Inactive in WooCommerce"
+msgstr "Неактивен в WooCommerce"
+
+#: includes/class-pmh-settings.php:207
+msgid "Use colour for this method"
+msgstr "Използване на цвят за този метод"
+
+#: includes/class-pmh-settings.php:208
+msgid "Accent colour"
+msgstr "Акцентен цвят"

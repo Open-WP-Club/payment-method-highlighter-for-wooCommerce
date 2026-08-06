@@ -20,7 +20,7 @@ final class Assets {
 			return;
 		}
 
-		$order_screens = array( 'shop_order' );
+		$order_screens = array( 'shop_order', 'edit-shop_order' );
 		if ( function_exists( 'wc_get_page_screen_id' ) ) {
 			$order_screens[] = wc_get_page_screen_id( 'shop-order' );
 		}

@@ -23,3 +23,24 @@
 	font-weight: 600;
 	line-height: 1.4;
 }
+
+.pmh-order-header-badge,
+.pmh-order-list-badge {
+	display: inline-block;
+	border-radius: 3px;
+	padding: 3px 7px;
+	color: #fff;
+	background: var(--pmh-payment-colour);
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1.4;
+}
+
+.pmh-order-header-badge {
+	margin-left: 8px;
+	vertical-align: middle;
+}
+
+.column-pmh_payment_method {
+	width: 13ch;
+}

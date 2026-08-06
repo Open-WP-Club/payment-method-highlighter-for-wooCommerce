@@ -13,15 +13,17 @@ final class Settings {
 	const OPTION_KEY = 'pmh_options';
 
 	public function __construct() {
-		add_action( 'admin_menu', array( $this, 'register_page' ) );
-		add_action( 'admin_init', array( $this, 'register_settings' ) );
 	}
 
 	public static function defaults() {
 		return array(
-			'schema_version'     => 2,
-			'enabled'           => 'yes',
-			'methods'           => array(),
+			'schema_version'         => 3,
+			'enabled'                => 'yes',
+			'show_in_order_list'     => 'yes',
+			'show_in_order_details'  => 'yes',
+			'show_in_order_header'   => 'no',
+			'show_missing_method'    => 'no',
+			'methods'                => array(),
 		);
 	}
 
@@ -108,29 +110,6 @@ final class Settings {
 		return wp_parse_args( $stored, self::method_defaults( $gateway_id ) );
 	}
 
-	public function register_page() {
-		add_submenu_page(
-			'woocommerce',
-			__( 'Payment highlighter', 'payment-method-highlighter' ),
-			__( 'Payment highlighter', 'payment-method-highlighter' ),
-			'manage_woocommerce',
-			'payment-method-highlighter',
-			array( $this, 'render_page' )
-		);
-	}
-
-	public function register_settings() {
-		register_setting(
-			'pmh_settings',
-			self::OPTION_KEY,
-			array(
-				'type'              => 'array',
-				'sanitize_callback' => array( $this, 'sanitize' ),
-				'default'           => self::defaults(),
-			)
-		);
-	}
-
 	public function sanitize( $input ) {
 		$input      = is_array( $input ) ? $input : array();
 		$gateways   = $this->payment_gateways();
@@ -149,42 +128,66 @@ final class Settings {
 		}
 
 		return array(
-			'schema_version'     => 2,
-			'enabled'           => isset( $input['enabled'] ) ? 'yes' : 'no',
-			'methods'           => $methods,
+			'schema_version'       => 3,
+			'enabled'              => isset( $input['enabled'] ) ? 'yes' : 'no',
+			'show_in_order_list'   => isset( $input['show_in_order_list'] ) ? 'yes' : 'no',
+			'show_in_order_details' => isset( $input['show_in_order_details'] ) ? 'yes' : 'no',
+			'show_in_order_header' => isset( $input['show_in_order_header'] ) ? 'yes' : 'no',
+			'show_missing_method'  => isset( $input['show_missing_method'] ) ? 'yes' : 'no',
+			'methods'              => $methods,
 		);
 	}
 
-	public function render_page() {
-		if ( ! current_user_can( 'manage_woocommerce' ) ) {
-			return;
-		}
-
+	/**
+	 * Render the fields inside the WooCommerce Settings form.
+	 */
+	public function render_fields() {
 		$options  = $this->get();
 		$gateways = $this->payment_gateways();
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Payment Method Highlighter', 'payment-method-highlighter' ); ?></h1>
-			<p><?php esc_html_e( 'Show a colour-coded payment method badge when an administrator opens a WooCommerce order. Each method can have its own colour.', 'payment-method-highlighter' ); ?></p>
+		<h2><?php esc_html_e( 'Payment Method Highlighter', 'payment-method-highlighter' ); ?></h2>
+		<p><?php esc_html_e( 'Show a colour-coded payment method badge when an administrator opens a WooCommerce order. Each method can have its own colour.', 'payment-method-highlighter' ); ?></p>
 
-			<?php if ( empty( $gateways ) ) : ?>
-				<div class="notice notice-warning inline"><p><?php esc_html_e( 'No payment methods are currently registered. Configure a payment gateway in WooCommerce → Settings → Payments, then return here.', 'payment-method-highlighter' ); ?></p></div>
-			<?php endif; ?>
+		<?php if ( empty( $gateways ) ) : ?>
+			<div class="notice notice-warning inline"><p><?php esc_html_e( 'No payment methods are currently registered. Configure a payment gateway in WooCommerce → Settings → Payments, then return here.', 'payment-method-highlighter' ); ?></p></div>
+		<?php endif; ?>
 
-			<form action="options.php" method="post">
-				<?php settings_fields( 'pmh_settings' ); ?>
-				<table class="form-table" role="presentation">
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Enable payment colours', 'payment-method-highlighter' ); ?></th>
-						<td>
-							<label for="pmh-enabled"><input id="pmh-enabled" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enabled]" type="checkbox" value="yes" <?php checked( $options['enabled'], 'yes' ); ?> /> <?php esc_html_e( 'Show colour-coded payment method badges on individual order screens.', 'payment-method-highlighter' ); ?></label>
-						</td>
-					</tr>
-				</table>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Enable payment colours', 'payment-method-highlighter' ); ?></th>
+				<td>
+					<label for="pmh-enabled"><input id="pmh-enabled" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[enabled]" type="checkbox" value="yes" <?php checked( $options['enabled'], 'yes' ); ?> /> <?php esc_html_e( 'Enable all payment-method badges.', 'payment-method-highlighter' ); ?></label>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Order list badge', 'payment-method-highlighter' ); ?></th>
+				<td>
+					<label for="pmh-show-in-order-list"><input id="pmh-show-in-order-list" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[show_in_order_list]" type="checkbox" value="yes" <?php checked( $options['show_in_order_list'], 'yes' ); ?> /> <?php esc_html_e( 'Show a colour-coded payment-method column in WooCommerce → Orders.', 'payment-method-highlighter' ); ?></label>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Order header badge', 'payment-method-highlighter' ); ?></th>
+				<td>
+					<label for="pmh-show-in-order-header"><input id="pmh-show-in-order-header" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[show_in_order_header]" type="checkbox" value="yes" <?php checked( $options['show_in_order_header'], 'yes' ); ?> /> <?php esc_html_e( 'Show a compact badge next to the order number when viewing an order.', 'payment-method-highlighter' ); ?></label>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Order details badge', 'payment-method-highlighter' ); ?></th>
+				<td>
+					<label for="pmh-show-in-order-details"><input id="pmh-show-in-order-details" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[show_in_order_details]" type="checkbox" value="yes" <?php checked( $options['show_in_order_details'], 'yes' ); ?> /> <?php esc_html_e( 'Show the detailed payment-method block in the order screen.', 'payment-method-highlighter' ); ?></label>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Orders without a payment method', 'payment-method-highlighter' ); ?></th>
+				<td>
+					<label for="pmh-show-missing-method"><input id="pmh-show-missing-method" name="<?php echo esc_attr( self::OPTION_KEY ); ?>[show_missing_method]" type="checkbox" value="yes" <?php checked( $options['show_missing_method'], 'yes' ); ?> /> <?php esc_html_e( 'Show a neutral “No payment method” badge instead of hiding it.', 'payment-method-highlighter' ); ?></label>
+				</td>
+			</tr>
+		</table>
 
-				<h2><?php esc_html_e( 'Payment method colours', 'payment-method-highlighter' ); ?></h2>
-				<p><?php esc_html_e( 'Every payment method starts with its own built-in colour. Uncheck Use colour for any method that should not receive a badge in the order admin screen.', 'payment-method-highlighter' ); ?></p>
-				<table class="widefat striped">
+		<h2><?php esc_html_e( 'Payment method colours', 'payment-method-highlighter' ); ?></h2>
+		<p><?php esc_html_e( 'Every payment method starts with its own built-in colour. Uncheck Use colour for any method that should not receive a badge in the order admin screen.', 'payment-method-highlighter' ); ?></p>
+		<table class="widefat striped">
 					<thead>
 						<tr>
 							<th scope="col"><?php esc_html_e( 'Payment method', 'payment-method-highlighter' ); ?></th>
@@ -206,11 +209,7 @@ final class Settings {
 							</tr>
 						<?php endforeach; ?>
 					</tbody>
-				</table>
-
-				<?php submit_button( __( 'Save changes', 'payment-method-highlighter' ) ); ?>
-			</form>
-		</div>
+		</table>
 		<?php
 	}
 

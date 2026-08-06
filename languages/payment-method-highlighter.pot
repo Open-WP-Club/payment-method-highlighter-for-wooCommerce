@@ -1,0 +1,129 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Payment Method Highlighter for WooCommerce package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Payment Method Highlighter for WooCommerce 1.2.1\n"
+"Report-Msgid-Bugs-To: https://openwpclub.com\n"
+"POT-Creation-Date: 2026-08-06 15:08+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: includes/class-pmh-order-admin.php:67 includes/class-pmh-order-admin.php:115
+#: includes/class-pmh-settings.php:193
+msgid "Payment method"
+msgstr ""
+
+#: includes/class-pmh-order-admin.php:94
+msgid "Payment method:"
+msgstr ""
+
+#: includes/class-pmh-order-admin.php:184
+msgid "No payment method"
+msgstr ""
+
+#: includes/class-pmh-plugin.php:51
+msgid "Payment Method Highlighter requires WooCommerce to be active."
+msgstr ""
+
+#: includes/class-pmh-plugin.php:57
+msgid "Settings"
+msgstr ""
+
+#: includes/class-pmh-settings-page.php:18
+msgid "Payment highlighter"
+msgstr ""
+
+#: includes/class-pmh-settings.php:148
+msgid "Payment Method Highlighter"
+msgstr ""
+
+#: includes/class-pmh-settings.php:149
+msgid ""
+"Show a colour-coded payment method badge when an administrator opens a "
+"WooCommerce order. Each method can have its own colour."
+msgstr ""
+
+#: includes/class-pmh-settings.php:152
+msgid ""
+"No payment methods are currently registered. Configure a payment gateway in "
+"WooCommerce → Settings → Payments, then return here."
+msgstr ""
+
+#: includes/class-pmh-settings.php:157
+msgid "Enable payment colours"
+msgstr ""
+
+#: includes/class-pmh-settings.php:159
+msgid "Enable all payment-method badges."
+msgstr ""
+
+#: includes/class-pmh-settings.php:163
+msgid "Order list badge"
+msgstr ""
+
+#: includes/class-pmh-settings.php:165
+msgid "Show a colour-coded payment-method column in WooCommerce → Orders."
+msgstr ""
+
+#: includes/class-pmh-settings.php:169
+msgid "Order header badge"
+msgstr ""
+
+#: includes/class-pmh-settings.php:171
+msgid "Show a compact badge next to the order number when viewing an order."
+msgstr ""
+
+#: includes/class-pmh-settings.php:175
+msgid "Order details badge"
+msgstr ""
+
+#: includes/class-pmh-settings.php:177
+msgid "Show the detailed payment-method block in the order screen."
+msgstr ""
+
+#: includes/class-pmh-settings.php:181
+msgid "Orders without a payment method"
+msgstr ""
+
+#: includes/class-pmh-settings.php:183
+msgid "Show a neutral “No payment method” badge instead of hiding it."
+msgstr ""
+
+#: includes/class-pmh-settings.php:188
+msgid "Payment method colours"
+msgstr ""
+
+#: includes/class-pmh-settings.php:189
+msgid ""
+"Every payment method starts with its own built-in colour. Uncheck Use colour "
+"for any method that should not receive a badge in the order admin screen."
+msgstr ""
+
+#: includes/class-pmh-settings.php:194
+msgid "Use colour"
+msgstr ""
+
+#: includes/class-pmh-settings.php:195
+msgid "Colour"
+msgstr ""
+
+#: includes/class-pmh-settings.php:205
+msgid "Inactive in WooCommerce"
+msgstr ""
+
+#: includes/class-pmh-settings.php:207
+msgid "Use colour for this method"
+msgstr ""
+
+#: includes/class-pmh-settings.php:208
+msgid "Accent colour"
+msgstr ""

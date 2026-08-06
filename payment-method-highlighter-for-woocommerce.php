@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Payment Method Highlighter for WooCommerce
  * Description: Show a colour-coded payment method badge when an administrator opens a WooCommerce order.
- * Version: 1.0.0
+ * Version: 1.2.1
  * Requires at least: 6.5
  * Requires PHP: 7.4
  * Author: OpenWPClub.com
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PMH_VERSION', '1.0.0' );
+define( 'PMH_VERSION', '1.2.1' );
 define( 'PMH_FILE', __FILE__ );
 define( 'PMH_PATH', plugin_dir_path( __FILE__ ) );
 define( 'PMH_URL', plugin_dir_url( __FILE__ ) );

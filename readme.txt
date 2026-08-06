@@ -4,7 +4,7 @@ Tags: woocommerce, orders, payment methods, order management, admin
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,7 +24,7 @@ Payment Method Highlighter helps administrators identify the payment method used
 
 1. Upload the plugin files to `/wp-content/plugins/payment-method-highlighter-for-woocommerce`, or install the ZIP via the WordPress Plugins screen.
 2. Activate the plugin through the Plugins screen.
-3. Go to WooCommerce > Payment highlighter.
+3. Go to WooCommerce > Settings > Payment highlighter.
 4. Select a payment method and save your settings.
 
 == Frequently Asked Questions ==
@@ -38,6 +38,24 @@ No. It only adds a presentation layer to an existing WooCommerce payment method.
 No. Gateway availability rules, such as country, currency and cart restrictions, remain controlled by WooCommerce and the gateway plugin.
 
 == Changelog ==
+
+= 1.2.1 =
+
+* Add an independent on/off setting for the detailed order-screen badge.
+
+= 1.2.0 =
+
+* Add optional payment badges to the WooCommerce order list and order header.
+* Add an optional neutral badge for orders without a payment method.
+
+= 1.1.2 =
+
+* Add a translation template and Bulgarian interface translation.
+
+= 1.1.1 =
+
+* Move plugin settings to WooCommerce > Settings.
+* Add a fallback placement for the order payment-method badge.
 
 = 1.1.0 =
 

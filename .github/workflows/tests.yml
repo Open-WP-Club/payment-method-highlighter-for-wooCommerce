@@ -37,6 +37,9 @@ jobs:
       - name: Lint PHP files
         run: find . -type f -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l
 
+      - name: Run plugin unit tests
+        run: php tests/run.php
+
       - name: Validate plugin metadata
         run: |
           test -f payment-method-highlighter-for-woocommerce.php
