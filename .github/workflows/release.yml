@@ -1,0 +1,76 @@
+name: Build plugin release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.event.release.id }}
+  cancel-in-progress: false
+
+env:
+  PLUGIN_SLUG: payment-method-highlighter-for-woocommerce
+  PLUGIN_FILE: payment-method-highlighter-for-woocommerce.php
+
+jobs:
+  build-and-upload:
+    name: Build and upload ZIP
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate release source
+        run: |
+          find . -type f -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l
+          node --check assets/js/frontend.js
+          plugin_version="$(sed -nE 's/^[[:space:]]*\*[[:space:]]*Version:[[:space:]]*([^[:space:]]+).*/\1/p' "$PLUGIN_FILE" | head -n1)"
+          release_version="${{ github.event.release.tag_name }}"
+          release_version="${release_version#v}"
+          test -n "$plugin_version"
+          test "$plugin_version" = "$release_version"
+
+      - name: Build installable plugin archive
+        run: |
+          archive_dir="build/$PLUGIN_SLUG"
+          archive_file="build/$PLUGIN_SLUG.zip"
+          mkdir -p "$archive_dir"
+          rsync -a ./ "$archive_dir/" \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='build/' \
+            --exclude='node_modules/' \
+            --exclude='vendor/' \
+            --exclude='.DS_Store' \
+            --exclude='Thumbs.db' \
+            --exclude='.env' \
+            --exclude='.env.*' \
+            --exclude='*.log'
+          (
+            cd build
+            zip -qr "$(basename "$archive_file")" "$PLUGIN_SLUG"
+          )
+          test -f "$archive_file"
+          unzip -l "$archive_file" | grep -q "$PLUGIN_SLUG/$PLUGIN_FILE"
+
+      - name: Attach ZIP to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "build/$PLUGIN_SLUG.zip#${PLUGIN_SLUG}.zip" --clobber
