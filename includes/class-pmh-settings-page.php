@@ -15,7 +15,7 @@ final class Settings_Page extends \WC_Settings_Page {
 
 	public function __construct( Settings $settings ) {
 		$this->id       = 'payment_highlighter';
-		$this->label    = __( 'Payment highlighter', 'payment-method-highlighter' );
+		$this->label    = __( 'Payment highlighter', 'payment-method-highlighter-for-woocommerce' );
 		$this->settings = $settings;
 
 		parent::__construct();

@@ -4,19 +4,19 @@ Tags: woocommerce, orders, payment methods, order management, admin
 Requires at least: 6.5
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Show a colour-coded payment method badge when an administrator opens a WooCommerce order.
+Show colour-coded payment and shipping method badges when an administrator opens a WooCommerce order.
 
 == Description ==
 
-Payment Method Highlighter helps administrators identify the payment method used on an order without changing how payments are processed.
+Payment Method Highlighter helps administrators identify the payment and shipping methods used on an order without changing how payments or shipping are processed.
 
-* Configure an independent colour for every payment gateway.
-* Show a colour-coded payment method badge in the order admin screen.
-* Every payment gateway starts with a built-in colour; uncheck any method you do not want to display.
+* Configure an independent colour for every payment gateway and every shipping method.
+* Show colour-coded payment- and shipping-method badges in the order admin screen.
+* Every payment gateway and shipping method starts with a built-in colour; uncheck any method you do not want to display.
 * Supports legacy order storage and High Performance Order Storage (HPOS).
 * Compatible with High Performance Order Storage (HPOS).
 
@@ -25,7 +25,7 @@ Payment Method Highlighter helps administrators identify the payment method used
 1. Upload the plugin files to `/wp-content/plugins/payment-method-highlighter-for-woocommerce`, or install the ZIP via the WordPress Plugins screen.
 2. Activate the plugin through the Plugins screen.
 3. Go to WooCommerce > Settings > Payment highlighter.
-4. Select a payment method and save your settings.
+4. Select a payment method and/or shipping method colours and save your settings.
 
 == Frequently Asked Questions ==
 
@@ -38,6 +38,14 @@ No. It only adds a presentation layer to an existing WooCommerce payment method.
 No. Gateway availability rules, such as country, currency and cart restrictions, remain controlled by WooCommerce and the gateway plugin.
 
 == Changelog ==
+
+= 1.3.0 =
+
+* Add colour-coded shipping-method badges to the order details screen, order header, and order list, mirroring the existing payment-method badges.
+* Add an independent colour and on/off setting for every registered shipping method.
+* Add an optional neutral badge for orders without a shipping method.
+* Add configurable delivery-type keyword colours (e.g. "офис"/"office" vs "адрес"/"address") that override the shipping method's colour when the shipping line title contains the keyword anywhere, in Bulgarian or English by default.
+* Fix the plugin's text domain to match its slug (`payment-method-highlighter-for-woocommerce`), resolving `TextDomainMismatch` findings from the WordPress Plugin Check tool.
 
 = 1.2.1 =
 
