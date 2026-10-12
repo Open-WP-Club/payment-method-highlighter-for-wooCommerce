@@ -24,6 +24,22 @@ A modern WooCommerce plugin that shows a colour-coded payment-method badge when 
 - PHP 7.4+
 - WooCommerce 8.3+ (tested through 10.9)
 
+<!-- OPENWPCLUB_SPONSORS_START -->
+## Open-source supporters
+
+These companies help keep Open WP Club plugins free and maintained.
+
+[![Open WP Club supporters](https://openwpclub.com/sponsorship/supporters.png)](https://openwpclub.com/sponsors/)
+
+## Sponsored placements
+
+Clearly labelled promotional campaigns, separate from our supporters.
+
+[![Open WP Club sponsored placements](https://openwpclub.com/sponsorship/repos/payment-method-highlighter-for-woocommerce/campaigns.png)](https://openwpclub.com/advertise/)
+
+[Support our work](https://openwpclub.com/sponsors/) · [Discuss a campaign](https://openwpclub.com/advertise/)
+<!-- OPENWPCLUB_SPONSORS_END -->
+
 ## Development
 
 The plugin has no build step and adds no npm or PHP dependencies. Before a release, run:
